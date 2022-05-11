@@ -3,7 +3,7 @@ const path = require('path');
 
 // const productsFilePath = path.join(__dirname, '../data/productsDataBase.json');
 // const products = JSON.parse(fs.readFileSync(productsFilePath, 'utf-8'));
-const productos = require('../data/productsDataBase.json')
+let productos = require('../data/productsDataBase.json')
 const guardarJson= (products)=> fs.writeFileSync(path.resolve(__dirname,'..','data','productsDatabase.json'),JSON.stringify(products,null,3),'utf-8')
 const toThousand = n => n.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 
@@ -53,11 +53,35 @@ const controller = {
 
 	// Update - Form to edit
 	edit: (req, res) => {
-		// Do the magic
+		
+	let productToEdit = productos.find(product=> product.id === +req.params.id); 
+	
+	res.render('product-edit-form', {
+		productToEdit
+	}, 
+	)
 	},
 	// Update - Method to update
 	update: (req, res) => {
-		// Do the magic
+		const{name, price, discount, category, description}= req.body; 
+		const productsModify= productos.map(product=>{
+			if(product.id === +req.params.id){
+				let productModify={
+					...product, 
+					name: name.trim(),
+					price: +price,
+					discount: +discount,
+					description: description,
+					category
+				}
+				return productModify
+			}
+			return product
+		})
+		productos = productsModify; 
+		guardarJson(productos)
+		return  res.redirect('/')
+		
 	},
 
 	// Delete - Delete one product from DB
